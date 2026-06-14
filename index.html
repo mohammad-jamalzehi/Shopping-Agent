@@ -1,77 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Smart Shopping Agent Prototype</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Agent - Barcode Camera</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app">
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Prototype</p>
-        <h1>Smart Shopping Agent</h1>
-        <p class="subtitle">Scan a grocery barcode, add expiry date, and build your fridge inventory.</p>
-      </div>
-      <div class="badge">MVP</div>
-    </section>
+    <section class="card">
+      <h1>Shopping Agent</h1>
+      <p class="subtitle">Camera + barcode test for iPhone/Chrome and Safari.</p>
 
-    <section class="card scanner-card">
-      <h2>1. Scan barcode</h2>
-      <p class="hint">Works best on Chrome/Android. On iPhone, use manual barcode entry if live scanning is blocked.</p>
-
-      <div class="video-wrap">
-        <video id="video" playsinline muted></video>
-        <div class="scan-line"></div>
+      <div class="button-row">
+        <button id="startCameraBtn">Start Rear Camera</button>
+        <button id="stopCameraBtn" class="secondary">Stop Camera</button>
       </div>
 
-      <div class="actions">
-        <button id="startBtn">Start camera</button>
-        <button id="stopBtn" class="secondary">Stop</button>
+      <video id="cameraPreview" autoplay playsinline muted></video>
+
+      <div class="fallback">
+        <p><strong>iPhone fallback:</strong> open camera using file input.</p>
+        <input id="cameraFileInput" type="file" accept="image/*" capture="environment" />
       </div>
 
-      <label>
-        Barcode
-        <input id="barcodeInput" placeholder="Scan or type barcode" inputmode="numeric" />
-      </label>
-      <button id="lookupBtn" class="wide">Find product</button>
-      <p id="scanStatus" class="status"></p>
+      <label for="manualBarcode">Manual barcode entry</label>
+      <div class="manual-row">
+        <input id="manualBarcode" type="text" placeholder="Example: 8000500310427" />
+        <button id="addManualBtn">Add</button>
+      </div>
+
+      <div class="status-box">
+        <h2>Status</h2>
+        <pre id="statusLog">Ready...</pre>
+      </div>
     </section>
 
     <section class="card">
-      <h2>2. Product details</h2>
-      <label>
-        Product name
-        <input id="productName" placeholder="Example: Barilla Pasta 500g" />
-      </label>
-      <label>
-        Category
-        <select id="category">
-          <option>Fridge</option>
-          <option>Pantry</option>
-          <option>Freezer</option>
-          <option>Bathroom</option>
-          <option>Other</option>
-        </select>
-      </label>
-      <label>
-        Quantity
-        <input id="quantity" type="number" min="1" value="1" />
-      </label>
-      <label>
-        Expiry date
-        <input id="expiry" type="date" />
-      </label>
-      <button id="addBtn" class="wide primary">Add to inventory</button>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <h2>3. My inventory</h2>
-        <button id="clearBtn" class="danger">Clear</button>
-      </div>
-      <div id="inventory"></div>
+      <h2>Fridge / Shopping List</h2>
+      <ul id="itemList"></ul>
     </section>
   </main>
 
