@@ -8,9 +8,14 @@ const addManualBtn = document.getElementById("addManualBtn");
 const itemList = document.getElementById("itemList");
 
 let codeReader = null;
+let currentStream = null;
+let scanTimer = null;
 let scannerLocked = false;
 let candidateCode = null;
 let candidateCount = 0;
+
+const cropCanvas = document.createElement("canvas");
+const cropContext = cropCanvas.getContext("2d", { willReadFrequently: true });
 
 function log(message) {
   const time = new Date().toLocaleTimeString();
@@ -77,37 +82,22 @@ function normalizeBarcode(rawCode) {
 
 async function lookupProduct(barcode) {
   try {
-    const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`;
-    const response = await fetch(url);
+    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
     const data = await response.json();
 
     if (data.status === 1 && data.product) {
       return {
         found: true,
-        name:
-          data.product.product_name ||
-          data.product.product_name_en ||
-          data.product.generic_name ||
-          "Unnamed product",
+        name: data.product.product_name || data.product.product_name_en || data.product.generic_name || "Unnamed product",
         brand: data.product.brands || "",
         image: data.product.image_front_small_url || data.product.image_url || ""
       };
     }
 
-    return {
-      found: false,
-      name: "Unknown product",
-      brand: "",
-      image: ""
-    };
+    return { found: false, name: "Unknown product", brand: "", image: "" };
   } catch (error) {
-    log("Product lookup failed. Maybe internet/CORS issue.");
-    return {
-      found: false,
-      name: "Lookup failed",
-      brand: "",
-      image: ""
-    };
+    log("Product lookup failed.");
+    return { found: false, name: "Lookup failed", brand: "", image: "" };
   }
 }
 
@@ -126,7 +116,6 @@ async function addItemToList(barcode, source = "scanner") {
   const product = await lookupProduct(validBarcode);
 
   const item = document.createElement("li");
-
   item.innerHTML = `
     <div class="item-title">${product.name}</div>
     <div class="item-note">
@@ -136,7 +125,7 @@ async function addItemToList(barcode, source = "scanner") {
     </div>
     ${
       product.image
-        ? `<img src="${product.image}" alt="${product.name}" style="max-width:80px;margin-top:8px;border-radius:8px;">`
+        ? `<img class="product-image" src="${product.image}" alt="${product.name}">`
         : ""
     }
   `;
@@ -146,7 +135,7 @@ async function addItemToList(barcode, source = "scanner") {
   if (product.found) {
     log(`Product found: ${product.name}`);
   } else {
-    log("Product not found in Open Food Facts. You can still save the barcode.");
+    log("Product not found in Open Food Facts.");
   }
 }
 
@@ -163,7 +152,18 @@ async function startScanner() {
   }
 
   try {
-    log("Initializing scanner...");
+    log("Starting camera...");
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+
+    cameraPreview.srcObject = currentStream;
+    await cameraPreview.play();
 
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
@@ -175,65 +175,11 @@ async function startScanner() {
 
     codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
-    const videoInputDevices = await codeReader.listVideoInputDevices();
-
-    if (!videoInputDevices || videoInputDevices.length === 0) {
-      log("No camera found.");
-      return;
-    }
-
-    const rearCamera = videoInputDevices.find(device => {
-      const label = device.label.toLowerCase();
-      return label.includes("back") || label.includes("rear") || label.includes("environment");
-    });
-
-    const selectedDeviceId = rearCamera
-      ? rearCamera.deviceId
-      : videoInputDevices[videoInputDevices.length - 1].deviceId;
-
     log("Scanner running.");
-    log("Hold the barcode steady until it confirms.");
+    log("Only the tighter center box is scanned.");
+    log("Move the product, do not zoom the camera.");
 
-    codeReader.decodeFromVideoDevice(
-      selectedDeviceId,
-      cameraPreview,
-      async (result, error) => {
-        if (scannerLocked) return;
-
-        if (result) {
-          const rawCode = result.getText();
-          const validCode = normalizeBarcode(rawCode);
-
-          if (!validCode) {
-            log(`Ignored invalid scan: ${rawCode}`);
-            return;
-          }
-
-          // Stability filter: same valid code must appear twice
-          if (candidateCode === validCode) {
-            candidateCount += 1;
-          } else {
-            candidateCode = validCode;
-            candidateCount = 1;
-          }
-
-          log(`Candidate barcode: ${validCode} (${candidateCount}/2)`);
-
-          if (candidateCount >= 2) {
-            scannerLocked = true;
-            log("Barcode confirmed. Stopping scanner...");
-
-            stopScanner();
-
-            await addItemToList(validCode, "live camera");
-          }
-        }
-
-        if (error && !(error instanceof ZXing.NotFoundException)) {
-          console.warn(error);
-        }
-      }
-    );
+    scanTimer = setInterval(scanCropArea, 180);
   } catch (error) {
     log(`ERROR: ${error.name || "UnknownError"}`);
     log(error.message || String(error));
@@ -241,17 +187,79 @@ async function startScanner() {
   }
 }
 
-function stopScanner() {
+async function scanCropArea() {
+  if (scannerLocked) return;
+  if (!cameraPreview.videoWidth || !cameraPreview.videoHeight) return;
+
+  const videoWidth = cameraPreview.videoWidth;
+  const videoHeight = cameraPreview.videoHeight;
+
+  // Match mobile CSS ROI approximately:
+  // left 16%, top 40%, width 68%, height 22%
+  const sourceX = videoWidth * 0.16;
+  const sourceY = videoHeight * 0.40;
+  const sourceW = videoWidth * 0.68;
+  const sourceH = videoHeight * 0.22;
+
+  cropCanvas.width = Math.round(sourceW);
+  cropCanvas.height = Math.round(sourceH);
+
+  cropContext.drawImage(
+    cameraPreview,
+    sourceX,
+    sourceY,
+    sourceW,
+    sourceH,
+    0,
+    0,
+    cropCanvas.width,
+    cropCanvas.height
+  );
+
   try {
-    if (codeReader) {
-      codeReader.reset();
-      log("Scanner stopped.");
+    const result = await codeReader.decodeFromCanvas(cropCanvas);
+    const rawCode = result.getText();
+    const validCode = normalizeBarcode(rawCode);
+
+    if (!validCode) {
+      return;
     }
 
-    cameraPreview.srcObject = null;
+    if (candidateCode === validCode) {
+      candidateCount += 1;
+    } else {
+      candidateCode = validCode;
+      candidateCount = 1;
+    }
+
+    log(`Candidate: ${validCode} (${candidateCount}/2)`);
+
+    if (candidateCount >= 2) {
+      scannerLocked = true;
+      stopScanner();
+      await addItemToList(validCode, "tight scan box");
+    }
   } catch (error) {
-    console.error(error);
+    // Normal while searching.
   }
+}
+
+function stopScanner() {
+  if (scanTimer) {
+    clearInterval(scanTimer);
+    scanTimer = null;
+  }
+
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+  }
+
+  if (cameraPreview) {
+    cameraPreview.srcObject = null;
+  }
+
+  log("Scanner stopped.");
 }
 
 async function addManualBarcode() {

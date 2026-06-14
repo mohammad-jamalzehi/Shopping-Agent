@@ -67,7 +67,7 @@ button.secondary {
 .scanner-frame {
   position: relative;
   width: 100%;
-  min-height: 280px;
+  min-height: 300px;
   background: #111827;
   border-radius: 16px;
   overflow: hidden;
@@ -76,30 +76,92 @@ button.secondary {
 
 video {
   width: 100%;
-  min-height: 280px;
+  min-height: 300px;
   display: block;
   object-fit: cover;
   background: #111827;
 }
 
-.scan-box {
+/* Tighter visible scan area: center 58% width, 24% height */
+.roi-box {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 32%;
-  height: 36%;
-  border: 3px solid rgba(255,255,255,0.9);
-  border-radius: 14px;
+  left: 21%;
+  top: 39%;
+  width: 58%;
+  height: 24%;
+  border: 2px solid rgba(34, 197, 94, 0.95);
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.42),
+    0 0 18px rgba(34, 197, 94, 0.85);
+}
+
+.corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #22c55e;
+}
+
+.top-left {
+  top: -4px;
+  left: -4px;
+  border-top: 5px solid;
+  border-left: 5px solid;
+  border-radius: 12px 0 0 0;
+}
+
+.top-right {
+  top: -4px;
+  right: -4px;
+  border-top: 5px solid;
+  border-right: 5px solid;
+  border-radius: 0 12px 0 0;
+}
+
+.bottom-left {
+  bottom: -4px;
+  left: -4px;
+  border-bottom: 5px solid;
+  border-left: 5px solid;
+  border-radius: 0 0 0 12px;
+}
+
+.bottom-right {
+  bottom: -4px;
+  right: -4px;
+  border-bottom: 5px solid;
+  border-right: 5px solid;
+  border-radius: 0 0 12px 0;
 }
 
 .scan-line {
   position: absolute;
-  left: 10%;
-  right: 10%;
+  left: 5%;
+  right: 5%;
   top: 50%;
   height: 3px;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 0 12px rgba(255,255,255,0.9);
+  background: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.95);
+}
+
+.roi-label {
+  position: absolute;
+  left: 50%;
+  bottom: -34px;
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.92);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tip {
+  margin: 12px 0 0;
+  color: #4b5563;
+  font-size: 14px;
 }
 
 .result-box {
@@ -173,6 +235,12 @@ li {
   margin-top: 4px;
 }
 
+.product-image {
+  max-width: 80px;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
 @media (max-width: 520px) {
   .button-row,
   .manual-row {
@@ -181,6 +249,14 @@ li {
 
   .scanner-frame,
   video {
-    min-height: 240px;
+    min-height: 260px;
+  }
+
+  /* Slightly wider on phones but still much tighter than before */
+  .roi-box {
+    left: 16%;
+    width: 68%;
+    top: 40%;
+    height: 22%;
   }
 }

@@ -10,7 +10,7 @@
   <main class="app">
     <section class="card">
       <h1>Shopping Agent</h1>
-      <p class="subtitle">Scan grocery barcodes with EAN/UPC validation to avoid wrong partial scans.</p>
+      <p class="subtitle">Place only the barcode inside the green box. The app scans only that tighter area.</p>
 
       <div class="button-row">
         <button id="startScanBtn">Start Barcode Scan</button>
@@ -19,9 +19,18 @@
 
       <div class="scanner-frame">
         <video id="cameraPreview" autoplay playsinline muted></video>
-        <div class="scan-box"></div>
-        <div class="scan-line"></div>
+
+        <div class="roi-box">
+          <div class="corner top-left"></div>
+          <div class="corner top-right"></div>
+          <div class="corner bottom-left"></div>
+          <div class="corner bottom-right"></div>
+          <div class="scan-line"></div>
+          <div class="roi-label">Barcode only</div>
+        </div>
       </div>
+
+      <p class="tip">Tip: hold the can steady and move it until the barcode fills most of the green box.</p>
 
       <div class="result-box">
         <h2>Last valid barcode</h2>
