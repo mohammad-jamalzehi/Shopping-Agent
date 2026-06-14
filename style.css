@@ -1,0 +1,110 @@
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --text: #171717;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #111827;
+  --soft: #eef2ff;
+  --danger: #b91c1c;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.app {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+}
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 4px 14px;
+}
+.eyebrow {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  margin: 0 0 8px;
+}
+h1 { margin: 0; font-size: 34px; line-height: 1; }
+h2 { margin: 0 0 12px; font-size: 20px; }
+.subtitle { color: var(--muted); margin: 10px 0 0; line-height: 1.4; }
+.badge {
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  margin: 14px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+.hint, .status { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.video-wrap {
+  position: relative;
+  overflow: hidden;
+  background: #111;
+  border-radius: 18px;
+  aspect-ratio: 4/3;
+  margin: 12px 0;
+}
+video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-line {
+  position: absolute;
+  left: 12%; right: 12%; top: 50%;
+  height: 2px;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 0 16px rgba(255,255,255,0.8);
+}
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+button, input, select {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+button {
+  background: var(--accent);
+  color: white;
+  padding: 13px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+button.secondary { background: #f3f4f6; color: var(--text); }
+button.danger { background: #fee2e2; color: var(--danger); width: auto; padding: 9px 12px; }
+button.primary { background: #0f172a; }
+button.wide { margin-top: 10px; }
+label { display: block; font-weight: 650; margin-top: 12px; }
+input, select {
+  margin-top: 7px;
+  padding: 13px 12px;
+  background: #fff;
+}
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.item {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 10px;
+  display: grid;
+  gap: 4px;
+}
+.item strong { font-size: 16px; }
+.meta { color: var(--muted); font-size: 14px; }
+.expiring { border-color: #f59e0b; background: #fffbeb; }
+.expired { border-color: #ef4444; background: #fef2f2; }
+.empty { color: var(--muted); padding: 10px 0; }
