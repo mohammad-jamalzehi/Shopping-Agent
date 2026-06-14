@@ -3,36 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shopping Agent - Barcode Camera</title>
+  <title>Shopping Agent - Barcode Scanner</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app">
     <section class="card">
       <h1>Shopping Agent</h1>
-      <p class="subtitle">Camera + barcode test for iPhone/Chrome and Safari.</p>
+      <p class="subtitle">Scan grocery barcodes with EAN/UPC validation to avoid wrong partial scans.</p>
 
       <div class="button-row">
-        <button id="startCameraBtn">Start Rear Camera</button>
-        <button id="stopCameraBtn" class="secondary">Stop Camera</button>
+        <button id="startScanBtn">Start Barcode Scan</button>
+        <button id="stopScanBtn" class="secondary">Stop</button>
       </div>
 
-      <video id="cameraPreview" autoplay playsinline muted></video>
-
-      <div class="fallback">
-        <p><strong>iPhone fallback:</strong> open camera using file input.</p>
-        <input id="cameraFileInput" type="file" accept="image/*" capture="environment" />
+      <div class="scanner-frame">
+        <video id="cameraPreview" autoplay playsinline muted></video>
+        <div class="scan-box"></div>
+        <div class="scan-line"></div>
       </div>
 
-      <label for="manualBarcode">Manual barcode entry</label>
-      <div class="manual-row">
-        <input id="manualBarcode" type="text" placeholder="Example: 8000500310427" />
-        <button id="addManualBtn">Add</button>
+      <div class="result-box">
+        <h2>Last valid barcode</h2>
+        <p id="barcodeResult">No valid barcode scanned yet.</p>
+      </div>
+
+      <div class="manual-section">
+        <label for="manualBarcode">Manual barcode entry</label>
+        <div class="manual-row">
+          <input id="manualBarcode" type="text" inputmode="numeric" placeholder="Example: 5449000233295" />
+          <button id="addManualBtn">Add</button>
+        </div>
       </div>
 
       <div class="status-box">
         <h2>Status</h2>
-        <pre id="statusLog">Ready...</pre>
+        <pre id="statusLog">Ready. Tap “Start Barcode Scan”.</pre>
       </div>
     </section>
 
@@ -42,6 +48,7 @@
     </section>
   </main>
 
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
   <script src="app.js"></script>
 </body>
 </html>
