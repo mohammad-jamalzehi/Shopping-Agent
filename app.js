@@ -116,19 +116,44 @@ async function addItemToList(barcode, source = "scanner") {
   const product = await lookupProduct(validBarcode);
 
   const item = document.createElement("li");
-  item.innerHTML = `
-    <div class="item-title">${product.name}</div>
-    <div class="item-note">
-      Barcode: ${validBarcode}<br>
-      ${product.brand ? "Brand: " + product.brand + "<br>" : ""}
-      Source: ${source}
-    </div>
-    ${
-      product.image
-        ? `<img class="product-image" src="${product.image}" alt="${product.name}">`
-        : ""
+
+  const title = document.createElement("div");
+  title.className = "item-title";
+  title.textContent = product.name;
+  item.appendChild(title);
+
+  const details = document.createElement("div");
+  details.className = "item-note";
+  const barcodeLine = document.createElement("div");
+  barcodeLine.textContent = "Barcode: " + validBarcode;
+  details.appendChild(barcodeLine);
+
+  if (product.brand) {
+    const brandLine = document.createElement("div");
+    brandLine.textContent = "Brand: " + product.brand;
+    details.appendChild(brandLine);
+  }
+
+  const sourceLine = document.createElement("div");
+  sourceLine.textContent = "Source: " + source;
+  details.appendChild(sourceLine);
+  item.appendChild(details);
+
+  if (product.image) {
+    try {
+      const imageUrl = new URL(product.image);
+      if (imageUrl.protocol === "https:" || imageUrl.protocol === "http:") {
+        const image = document.createElement("img");
+        image.className = "product-image";
+        image.src = imageUrl.href;
+        image.alt = product.name;
+        image.loading = "lazy";
+        item.appendChild(image);
+      }
+    } catch (error) {
+      log("Skipping invalid product image URL.");
     }
-  `;
+  }
 
   itemList.prepend(item);
 
