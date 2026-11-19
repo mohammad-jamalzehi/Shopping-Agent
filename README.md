@@ -47,7 +47,7 @@ The barcode lookup endpoint is `https://world.openfoodfacts.org/api/v2/product/{
 - Camera availability, frame recognition and product lookup depend on the browser, device and external service.
 - There is no automated test suite or production monitoring yet.
 - The barcode scanning library is loaded using a floating CDN version; dependency pinning is a priority for reproducibility.
-- Before production, implement robust offline/error handling, accessibility checks, and safe handling of external content and image URLs.
+- External product text is rendered using DOM text nodes and image URLs are constrained to HTTP(S); further production hardening should include offline/error handling, dependency pinning and accessibility checks.
 
 ## Suggested product roadmap
 
